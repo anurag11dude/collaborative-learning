@@ -1,6 +1,7 @@
 import { types } from "mobx-state-tree";
 import { SectionModelType, SectionModel } from "./curriculum/section";
 import { WorkspaceModel, WorkspaceModelType } from "./workspaces";
+import { ToolTileModel, ToolTileModelType } from "./tools/tool-tile";
 
 type ToggleElement = "learningLogExpanded" | "leftNavExpanded" | "myWorkExpanded";
 
@@ -11,6 +12,7 @@ export const UIModel = types
     myWorkExpanded: false,
     error: types.maybeNull(types.string),
     activeSectionIndex: 0,
+    selectedTile: types.maybe(types.reference(ToolTileModel)),
     activeLearningLogTab: "LL",
     activeWorkspaceSectionId: types.maybe(types.string),
     showDemo: false,
@@ -75,6 +77,12 @@ export const UIModel = types
       },
       setShowDemo(showDemo: boolean) {
         self.showDemoCreator = showDemo;
+      },
+      setSelectedTile(tile: ToolTileModelType) {
+        self.selectedTile = tile;
+      },
+      clearSelectedTile() {
+        self.selectedTile = undefined;
       }
     };
   });

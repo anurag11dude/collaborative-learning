@@ -1,11 +1,12 @@
 import * as React from "react";
-import { observer } from "mobx-react";
+import { observer, inject } from "mobx-react";
 import { Change, Value } from "slate";
 import { Editor } from "slate-react";
 import { ToolTileModelType } from "../../models/tools/tool-tile";
 import { TextContentModelType } from "../../models/tools/text/text-content";
 
 import "./text-tool.sass";
+import { BaseComponent } from "../base";
 
 interface IState {
   value: Value;
@@ -16,11 +17,17 @@ interface IProps {
   readOnly?: boolean;
 }
 
+@inject("stores")
 @observer
-export default class TextToolComponent extends React.Component<IProps, IState> {
+export default class TextToolComponent extends BaseComponent<IProps, IState> {
 
   public onChange = (change: Change) => {
     const { readOnly, model: { content } } = this.props;
+    const { ui } = this.stores;
+    console.log(change.operations.get(0).type);
+    if (change.operations.get(0).type === "set_selection") {
+      ui.setSelectedTile(this.props.model);
+    }
     if (content.type === "Text") {
       if (readOnly) {
         this.setState({
@@ -35,9 +42,11 @@ export default class TextToolComponent extends React.Component<IProps, IState> {
 
   public render() {
     const { model, readOnly } = this.props;
+    const { ui } = this.stores;
     const { content } = model;
     const editableClass = this.props.readOnly ? "read-only" : "editable";
-    const classes = `text-tool ${editableClass}`;
+    const selectedClass = ui.selectedTile && ui.selectedTile.id === model.id ? "selected" : "";
+    const classes = `text-tool ${editableClass} ${selectedClass}`;
     const value = (readOnly && this.state)
       ? this.state.value
       : (content as TextContentModelType).convertSlate();
