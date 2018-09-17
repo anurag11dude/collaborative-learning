@@ -57,7 +57,13 @@ export default class TextToolComponent extends BaseComponent<IProps, IState> {
         readOnly={readOnly}
         value={value}
         onChange={this.onChange}
+        onCopy={this.onCopy}
       />
     );
+  }
+
+  private onCopy = (e: Event, change: Change) => {
+    console.log("Event " + e);
+    console.log("Change: " + change);
   }
 }
