@@ -24,7 +24,7 @@ export default class TextToolComponent extends BaseComponent<IProps, IState> {
   public onChange = (change: Change) => {
     const { readOnly, model: { content } } = this.props;
     const { ui } = this.stores;
-    console.log(change.operations.get(0).type);
+    // console.log(change.operations.get(0).type);
     if (change.operations.get(0).type === "set_selection") {
       ui.setSelectedTile(this.props.model);
     }
@@ -63,7 +63,7 @@ export default class TextToolComponent extends BaseComponent<IProps, IState> {
   }
 
   private onCopy = (e: Event, change: Change) => {
-    console.log("Event " + e);
-    console.log("Change: " + change);
+    // console.log("Event " + e);
+    // console.log("Change: " + change);
   }
 }
