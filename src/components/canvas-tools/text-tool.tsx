@@ -7,8 +7,6 @@ import { TextContentModelType } from "../../models/tools/text/text-content";
 
 import "./text-tool.sass";
 import { BaseComponent } from "../base";
-import { model } from "mobx-state-tree/dist/internal";
-import { userInfo } from "os";
 
 interface IState {
   value: Value;
@@ -110,7 +108,7 @@ export default class TextToolComponent extends BaseComponent<IProps, IState> {
 
   private onChange = (change: Change) => {
     const { readOnly, model } = this.props;
-    const { content } = model; 
+    const { content } = model;
     const { ui } = this.stores;
     const op = change.operations.get(0);
     // console.log('TextToolComponent:onChange() key -> ' + this.context);
