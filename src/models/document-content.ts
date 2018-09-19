@@ -47,6 +47,12 @@ export const DocumentContentModel = types
           text: initialText
         }
       }));
+    },
+    deleteTile(tileId: string) {
+      const index = self.tiles.findIndex(tile => tile.id === tileId);
+      if (index >= 0) {
+        self.tiles.splice(index, 1);
+      }
     }
   }));
 

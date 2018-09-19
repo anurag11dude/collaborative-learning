@@ -1,7 +1,7 @@
 import { inject, observer } from "mobx-react";
 import * as React from "react";
 
-import { WorkspaceModel, WorkspaceTool, WorkspaceModelType } from "../models/workspaces";
+import { WorkspaceTool, WorkspaceModelType } from "../models/workspaces";
 import { CanvasComponent } from "./canvas";
 import { FourUpComponent } from "./four-up";
 import { BaseComponent, IBaseProps } from "./base";
@@ -50,8 +50,18 @@ export class WorkspaceComponent extends BaseComponent<IProps, {}> {
       return `tool ${tool}${tool === workspace.tool ? " active" : ""}`;
     };
     const handleSelectTool = (tool: WorkspaceTool) => {
+      const { ui } = this.stores;
       return (e: React.MouseEvent<HTMLDivElement>) => {
-        workspace.toggleTool(tool);
+        switch (tool) {
+          case "delete":
+            const selectedTileId = ui.selectedTileId;
+            if (selectedTileId) {
+              workspace.deleteTile(selectedTileId);
+            }
+            break;
+          default:
+            workspace.toggleTool(tool);
+        }
       };
     };
     return (
@@ -59,6 +69,7 @@ export class WorkspaceComponent extends BaseComponent<IProps, {}> {
         <div className={className("select")} title="Select" onClick={handleSelectTool("select")}>↖</div>
         <div className={className("text")} title="Text" onClick={handleSelectTool("text")}>T</div>
         <div className={className("geometry")} title="Geometry" onClick={handleSelectTool("geometry")}/>
+        <div className={className("delete")} title="Delete" onClick={handleSelectTool("delete")}>{"\u274c"}</div>
       </div>
     );
   }

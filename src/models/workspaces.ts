@@ -4,7 +4,7 @@ import { DocumentModel } from "./document";
 export const WorkspaceModeEnum = types.enumeration("mode", ["1-up", "4-up"]);
 export type WorkspaceMode = typeof WorkspaceModeEnum.Type;
 
-export const WorkspaceToolEnum = types.enumeration("tool", ["geometry", "select", "text"]);
+export const WorkspaceToolEnum = types.enumeration("tool", ["delete", "geometry", "select", "text"]);
 export type WorkspaceTool = typeof WorkspaceToolEnum.Type;
 
 export const WorkspaceModel = types
@@ -40,6 +40,10 @@ export const WorkspaceModel = types
         self.visibility = typeof overide === "undefined"
           ? (self.visibility === "public" ? "private" : "public")
           : overide;
+      },
+
+      deleteTile(tileId: string) {
+        self.userDocument.content.deleteTile(tileId);
       }
     };
   });

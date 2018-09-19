@@ -1,5 +1,6 @@
 import * as React from "react";
-import { observer } from "mobx-react";
+import { inject, observer } from "mobx-react";
+import { BaseComponent } from "../base";
 import { ToolTileModelType } from "../../models/tools/tool-tile";
 
 import "./text-tool.sass";
@@ -23,8 +24,9 @@ function getEventCoords(board: JXG.Board, evt: any, index?: number) {
   return new JXG.Coords(JXG.COORDS_BY_SCREEN, [dx, dy], board);
 }
 ​
+@inject("stores")
 @observer
-export default class GeometryToolComponent extends React.Component<IProps, IState> {
+export default class GeometryToolComponent extends BaseComponent<IProps, IState> {
 
   public componentDidMount() {
     const { model } = this.props;
@@ -61,11 +63,15 @@ export default class GeometryToolComponent extends React.Component<IProps, IStat
 
   // cf. https://jsxgraph.uni-bayreuth.de/wiki/index.php/Browser_event_and_coordinates
   private downHandler = (evt: any) => {
+    const { model } = this.props;
     const { board } = this.state;
+    const { ui } = this.stores;
     if (!board) { return; }
     const index = evt[JXG.touchProperty] ? 0 : undefined;
     const coords = getEventCoords(board, evt, index);
     let el;
+
+    ui.setSelectedTile(model);
 
     for (el in board.objects) {
       if (JXG.isPoint(board.objects[el]) &&
