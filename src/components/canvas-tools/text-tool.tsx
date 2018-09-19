@@ -7,6 +7,8 @@ import { TextContentModelType } from "../../models/tools/text/text-content";
 
 import "./text-tool.sass";
 import { BaseComponent } from "../base";
+import { model } from "mobx-state-tree/dist/internal";
+import { userInfo } from "os";
 
 interface IState {
   value: Value;
@@ -72,7 +74,9 @@ interface IProps {
  * 5. Selection behavior is implemented like this:
  * 
  *    * At launch, nothing is selected.
- *    * Any shift of focus will cause the tool's tile to become selected.
+ *    * Any shift of focus will cause the new target tool's tile to become
+ *      selected. Since only one can be selected, previously selected ones should
+ *      no longer render w/ pink background.
  *
  */
 
@@ -85,11 +89,13 @@ export default class TextToolComponent extends BaseComponent<IProps, IState> {
     const { ui } = this.stores;
     const { content } = model;
     const editableClass = this.props.readOnly ? "read-only" : "editable";
-    const selectedClass = ui.selectedTile && ui.selectedTile.id === model.id ? "selected" : "";
+    const selectedClass = ui.isSelectedTile(model) ? "selected" : "";
     const classes = `text-tool ${editableClass} ${selectedClass}`;
     const value = (readOnly && this.state)
       ? this.state.value
       : (content as TextContentModelType).convertSlate();
+    // console.log('TextToolComponent:render() content -> ' + content);
+
     return (
       <Editor
         key={model.id}
@@ -103,21 +109,28 @@ export default class TextToolComponent extends BaseComponent<IProps, IState> {
   }
 
   private onChange = (change: Change) => {
-    const { readOnly, model: { content } } = this.props;
+    const { readOnly, model: { content, id } } = this.props;
     const { ui } = this.stores;
     const op = change.operations.get(0);
-    //console.log('In TextToolComponent: ' + op.type);
-    if (change.operations.get(0).type === "set_selection") {
+    // console.log('TextToolComponent:onChange() key -> ' + this.context);
+    if (op.type === "set_selection") {
+      // console.log('TextToolComponent:onChange() set_selection -> ' + op.selection);
       ui.setSelectedTile(this.props.model);
+      // return;  // THIS forced return gets us the selection behavior we want but kills editing since we never call setSlate.
     }
+    //console.log('TextToolComponent:onChange() content -> ' + content);
     if (content.type === "Text") {
       if (readOnly) {
+        // console.log('TextToolComponent:OnChange() about to setState -> ' + content);
         this.setState({
           value: change.value
         });
       }
       else {
-        content.setSlate(change.value);
+        // console.log('TextToolComponent:OnChange() about to setSlate ' + content);
+        if (ui.isSelectedTile(this.props.model)) {
+          content.setSlate(change.value);
+        }
       }
     }
   }

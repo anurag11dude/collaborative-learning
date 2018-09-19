@@ -12,7 +12,7 @@ export const UIModel = types
     myWorkExpanded: false,
     error: types.maybeNull(types.string),
     activeSectionIndex: 0,
-    selectedTile: types.maybe(types.reference(ToolTileModel)),
+    selectedTileId: types.maybe(types.string),
     activeLearningLogTab: "LL",
     activeWorkspaceSectionId: types.maybe(types.string),
     showDemo: false,
@@ -22,6 +22,9 @@ export const UIModel = types
     get allContracted() {
       return !self.learningLogExpanded && !self.leftNavExpanded && !self.myWorkExpanded;
     },
+    isSelectedTile(tile: ToolTileModelType) {
+      return (tile.id === self.selectedTileId);
+    }
   }))
   .actions((self) => {
     const contractAll = () => {
@@ -79,10 +82,10 @@ export const UIModel = types
         self.showDemoCreator = showDemo;
       },
       setSelectedTile(tile: ToolTileModelType) {
-        self.selectedTile = tile;
+        self.selectedTileId = tile.id;
       },
       clearSelectedTile() {
-        self.selectedTile = undefined;
+        self.selectedTileId = undefined;
       }
     };
   });

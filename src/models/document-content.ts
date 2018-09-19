@@ -16,11 +16,11 @@ export const DocumentContentModel = types
     };
   })
   .actions((self) => ({
-    addTextTile() {
+    addTextTile(initialText?: string) {
       self.tiles.push(ToolTileModel.create({
         content: {
           type: "Text",
-          text: ""
+          text: initialText
         }
       }));
     }
