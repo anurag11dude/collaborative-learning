@@ -109,13 +109,14 @@ export default class TextToolComponent extends BaseComponent<IProps, IState> {
   }
 
   private onChange = (change: Change) => {
-    const { readOnly, model: { content, id } } = this.props;
+    const { readOnly, model } = this.props;
+    const { content } = model; 
     const { ui } = this.stores;
     const op = change.operations.get(0);
     // console.log('TextToolComponent:onChange() key -> ' + this.context);
     if (op.type === "set_selection") {
       // console.log('TextToolComponent:onChange() set_selection -> ' + op.selection);
-      ui.setSelectedTile(this.props.model);
+      ui.setSelectedTile(model);
       // return;  // THIS forced return gets us the selection behavior
                   // we want but kills editing since we never call setSlate.
     }
@@ -129,7 +130,7 @@ export default class TextToolComponent extends BaseComponent<IProps, IState> {
       }
       else {
         // console.log('TextToolComponent:OnChange() about to setSlate ' + content);
-        if (ui.isSelectedTile(this.props.model)) {
+        if (ui.isSelectedTile(model)) {
           content.setSlate(change.value);
         }
       }
