@@ -84,11 +84,9 @@ export default class TextToolComponent extends BaseComponent<IProps, IState> {
 
   public render() {
     const { model, readOnly } = this.props;
-    const { ui } = this.stores;
     const { content } = model;
     const editableClass = this.props.readOnly ? "read-only" : "editable";
-    const selectedClass = ui.isSelectedTile(model) ? "selected" : "";
-    const classes = `text-tool ${editableClass} ${selectedClass}`;
+    const classes = `text-tool ${editableClass}`;
     const value = (readOnly && this.state)
       ? this.state.value
       : (content as TextContentModelType).convertSlate();
