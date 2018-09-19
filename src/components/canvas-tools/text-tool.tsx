@@ -28,7 +28,7 @@ interface IProps {
  * at the tool-level, delete. (If desired, cut is always something that can
  * be composed by a copy-delete.)
  *
- * Selection can be at either the tool-level or at a primitive level, inside 
+ * Selection can be at either the tool-level or at a primitive level, inside
  * a tool. For example, one might click on an area of the page that contains
  * a text-tool. If so, that particular text-tool will be selected. Previously
  * selected tools are unselected. We talk about primitive selections, later.
@@ -51,7 +51,7 @@ interface IProps {
  * can only be zero or 1 active tools at any one time.  The active tool is the
  * tool that has the keyboard focus, or contains another sub-component that
  * has the keyboard focus. In other words, it's the tool getting keyboard
- * input and the copy and paste events. 
+ * input and the copy and paste events.
  *
  * Tools in read-only canvas can only be selected, and may not be active. When
  * a tool is selected in an read/write canvas, it is, for now, the only selected
