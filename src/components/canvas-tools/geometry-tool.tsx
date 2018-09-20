@@ -85,8 +85,11 @@ export default class GeometryToolComponent extends BaseComponent<IProps, IState>
 
   private pointerDownHandler = (evt: any) => {
     const { board } = this.state;
+    const { model } = this.props;
     const { ui } = this.stores;
     if (!board) { return; }
+
+    ui.setSelectedTile(model);
 
     const index = evt[JXG.touchProperty] ? 0 : undefined;
     const coords = getEventCoords(board, evt, index);
