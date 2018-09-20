@@ -27,7 +27,6 @@ export default class TextToolComponent extends BaseComponent<IProps, IState> {
     }
   }
 
- 
   public render() {
     const { model, readOnly } = this.props;
     const { content } = model;
