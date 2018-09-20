@@ -22,21 +22,9 @@ interface IProps {
 export class ToolTileComponent extends BaseComponent<IProps, {}> {
 
   public render() {
-    return (
-      <div className="tool-tile-component"
-        onDragStart={this.handleToolDragStart}
-        draggable={true}
-      >
-        {this.renderTile()}
-      </div>
-    );
-  }
-
-  private renderTile() {
     const { model } = this.props;
     const { ui } = this.stores;
     const selectedClass = ui.isSelectedTile(model) ? " selected" : "";
-
     return (
       <div className={`tool-tile${selectedClass}`}
         onDragStart={this.handleToolDragStart}
@@ -47,10 +35,7 @@ export class ToolTileComponent extends BaseComponent<IProps, {}> {
     );
   }
 
-  /*
-  * TODO: review this with renderTile and resolve difference.
-  */
-  private old_renderTile() {
+  private renderTile() {
     const { model } = this.props;
     switch (model.content.type) {
       case kGeometryToolID: return this.renderGeometryTile();

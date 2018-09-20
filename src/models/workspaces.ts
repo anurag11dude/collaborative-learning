@@ -48,7 +48,7 @@ export const WorkspaceModel = types
       deleteTile(tileId: string) {
         self.userDocument.content.deleteTile(tileId);
       },
-      
+
       setGroupDocument(uid: string, document: DocumentModelType) {
         self.groupDocuments.set(uid, document);
       },

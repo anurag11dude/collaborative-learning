@@ -27,16 +27,7 @@ export default class TextToolComponent extends BaseComponent<IProps, IState> {
     }
   }
 
-  public onChange = (change: Change) => {
-    const { readOnly, model: { content } } = this.props;
-    if (content.type === "Text") {
-      if (!readOnly) {
-        content.setSlate(change.value);
-      }
-      this.setState({ value: change.value });
-    }
-  }
-
+ 
   public render() {
     const { model, readOnly } = this.props;
     const { content } = model;
@@ -45,7 +36,6 @@ export default class TextToolComponent extends BaseComponent<IProps, IState> {
     const value = (readOnly && this.state)
       ? this.state.value
       : (content as TextContentModelType).convertSlate();
-    // console.log('TextToolComponent:render() content -> ' + content);
 
     return (
       <Editor
@@ -54,44 +44,23 @@ export default class TextToolComponent extends BaseComponent<IProps, IState> {
         readOnly={readOnly}
         value={this.state.value}
         onChange={this.onChange}
-        onCopy={this.onCopy}
       />
     );
   }
 
-  // TODO: Renamed with XXX till new onChange handler, and this logic, can be
-  // reconciled.
-  private XXXonChange = (change: Change) => {
+  public onChange = (change: Change) => {
     const { readOnly, model } = this.props;
     const { content } = model;
     const { ui } = this.stores;
     const op = change.operations.get(0);
-    // console.log('TextToolComponent:onChange() key -> ' + this.context);
     if (op.type === "set_selection") {
-      // console.log('TextToolComponent:onChange() set_selection -> ' + op.selection);
       ui.setSelectedTile(model);
-      // return;  // THIS forced return gets us the selection behavior
-                  // we want but kills editing since we never call setSlate.
     }
-    // console.log('TextToolComponent:onChange() content -> ' + content);
     if (content.type === "Text") {
-      if (readOnly) {
-        // console.log('TextToolComponent:OnChange() about to setState -> ' + content);
-        this.setState({
-          value: change.value
-        });
+      if (!readOnly) {
+        content.setSlate(change.value);
       }
-      else {
-        // console.log('TextToolComponent:OnChange() about to setSlate ' + content);
-        if (ui.isSelectedTile(model)) {
-          content.setSlate(change.value);
-        }
-      }
+      this.setState({ value: change.value });
     }
-  }
-
-  private onCopy = (e: Event, change: Change) => {
-    // console.log("Event " + e);
-    // console.log("Change: " + change);
   }
 }
