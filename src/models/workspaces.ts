@@ -1,5 +1,8 @@
 import { types } from "mobx-state-tree";
-import { DocumentModel } from "./document";
+import { DocumentModel, DocumentModelType } from "./document";
+import { set } from "mobx";
+import { TextContentModelType } from "./tools/text/text-content";
+import { DocumentContentModelType } from "./document-content";
 
 export const WorkspaceModeEnum = types.enumeration("mode", ["1-up", "4-up"]);
 export type WorkspaceMode = typeof WorkspaceModeEnum.Type;
@@ -13,7 +16,7 @@ export const WorkspaceModel = types
     tool: WorkspaceToolEnum,
     sectionId: types.string,
     userDocument: DocumentModel,
-    groupDocuments: types.array(DocumentModel),
+    groupDocuments: types.map(DocumentModel),
     visibility: types.enumeration("VisibilityType", ["public", "private"]),
   })
   .actions((self) => {
@@ -44,6 +47,14 @@ export const WorkspaceModel = types
 
       deleteTile(tileId: string) {
         self.userDocument.content.deleteTile(tileId);
+      },
+      
+      setGroupDocument(uid: string, document: DocumentModelType) {
+        self.groupDocuments.set(uid, document);
+      },
+
+      clearGroupDocument(uid: string) {
+        self.groupDocuments.delete(uid);
       }
     };
   });

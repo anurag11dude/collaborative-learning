@@ -17,75 +17,30 @@ interface IProps {
   readOnly?: boolean;
 }
 
-/*
- * This comment to be removed once we're done with development of the
- * initial clipboard functionality. For our first work we have some working
- * definitions and assumptions. The assumptions are numbered.
- *
- * 1. For now, we are not concerned with drag-and-drop. Only copy, paste, and
- * at the tool-level, delete. (If desired, cut is always something that can
- * be composed by a copy-delete.)
- *
- * Selection can be at either the tool-level or at a primitive level, inside
- * a tool. For example, one might click on an area of the page that contains
- * a text-tool. If so, that particular text-tool will be selected. Previously
- * selected tools are unselected. We talk about primitive selections, later.
- *
- * 2. When a tool is selected, (at the moment, the only tool is the text-tool)
- * we visually indicate it is selected, by rendering with a pink background.
- * This rendering will be finalized when we know exactly how we want it to look.
- *
- * A tool maybe be in various clipboard-related selection states -- it may be:
- *
- *    *  not selected,
- *    *  singly selected, or
- *    *  one (of two or more) selected tools.
- *
- * 3. For now, we only support single selection which means at any one time,
- * either no tool or only 1 tool may be selected -- in other words there will
- * either be 1 tool with a pink background; or none.
- *
- * A parallel notion in this model is the idea of the "active" tool. There
- * can only be zero or 1 active tools at any one time.  The active tool is the
- * tool that has the keyboard focus, or contains another sub-component that
- * has the keyboard focus. In other words, it's the tool getting keyboard
- * input and the copy and paste events.
- *
- * Tools in read-only canvas can only be selected, and may not be active. When
- * a tool is selected in an read/write canvas, it is, for now, the only selected
- * tool and is also the only active tool.
- *
- * So, for now, we need not implement a list of selected tools and, instead
- * implement the idea of a single "selectedTile". It needs to be owned by a
- * container of the tool so it needed to be at the canvas, workspace, document,
- * or ui level. Since we don't think the selection state is anything that would
- * be seen by other users (say, in 4-up), nor saved in the database, we have
- * wedged it into the ui model. If those assumptions change, this will likely
- * mean this state (and other stuff) will need to be moved from the ui model
- * and into a more apropos object.
- *
- * 4. Ergo, single selection is implemented in the ui model, in a property called
- * "selectedTile" which is either the id of a toolTile that can be set with
- * "setSelectedTile" or "clearSelectedTile". No selection is indidcated when
- * the selectedTile is unknown.
- *
- * 5. Selection behavior is implemented like this:
- *
- *    * At launch, nothing is selected.
- *    * Any shift of focus will cause the new target tool's tile to become
- *      selected. Since only one can be selected, previously selected ones should
- *      no longer render w/ pink background.
- *
- */
-
 @inject("stores")
 @observer
 export default class TextToolComponent extends BaseComponent<IProps, IState> {
+  public componentWillMount() {
+    const { model: { content } } = this.props;
+    if (content.type === "Text") {
+      this.setState({ value: content.convertSlate() });
+    }
+  }
+
+  public onChange = (change: Change) => {
+    const { readOnly, model: { content } } = this.props;
+    if (content.type === "Text") {
+      if (!readOnly) {
+        content.setSlate(change.value);
+      }
+      this.setState({ value: change.value });
+    }
+  }
 
   public render() {
     const { model, readOnly } = this.props;
     const { content } = model;
-    const editableClass = this.props.readOnly ? "read-only" : "editable";
+    const editableClass = readOnly ? "read-only" : "editable";
     const classes = `text-tool ${editableClass}`;
     const value = (readOnly && this.state)
       ? this.state.value
@@ -97,14 +52,16 @@ export default class TextToolComponent extends BaseComponent<IProps, IState> {
         key={model.id}
         className={classes}
         readOnly={readOnly}
-        value={value}
+        value={this.state.value}
         onChange={this.onChange}
         onCopy={this.onCopy}
       />
     );
   }
 
-  private onChange = (change: Change) => {
+  // TODO: Renamed with XXX till new onChange handler, and this logic, can be
+  // reconciled.
+  private XXXonChange = (change: Change) => {
     const { readOnly, model } = this.props;
     const { content } = model;
     const { ui } = this.stores;

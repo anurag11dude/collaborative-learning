@@ -1,7 +1,6 @@
 import { types, Instance } from "mobx-state-tree";
 import { DataSet } from "./data/data-set";
-import { ToolTileModel } from "./tools/tool-tile";
-import { create } from "domain";
+import { ToolTileModel, ToolTileModelType } from "./tools/tool-tile";
 
 export const DocumentContentModel = types
   .model("DocumentContent", {
@@ -26,7 +25,8 @@ export const DocumentContentModel = types
         target: "board",
         properties: {
           axis: true,
-          boundingBox: [axisMin, yAxisMax, xAxisMax, axisMin]
+          boundingBox: [axisMin, yAxisMax, xAxisMax, axisMin],
+          minimizeReflow: "none"
         }
       };
       const changeJson = JSON.stringify(createBoardChange);
@@ -53,6 +53,9 @@ export const DocumentContentModel = types
       if (index >= 0) {
         self.tiles.splice(index, 1);
       }
+    },
+    addTileSnapshot(snapshot: ToolTileModelType) {
+      self.tiles.push(ToolTileModel.create(snapshot));
     }
   }));
 

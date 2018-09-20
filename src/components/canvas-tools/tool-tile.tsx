@@ -12,6 +12,7 @@ import { cloneDeep } from "lodash";
 import "./tool-tile.sass";
 
 interface IProps {
+  context: string;
   model: ToolTileModelType;
   readOnly?: boolean;
 }
@@ -21,6 +22,17 @@ interface IProps {
 export class ToolTileComponent extends BaseComponent<IProps, {}> {
 
   public render() {
+    return (
+      <div className="tool-tile-component"
+        onDragStart={this.handleToolDragStart}
+        draggable={true}
+      >
+        {this.renderTile()}
+      </div>
+    );
+  }
+
+  private renderTile() {
     const { model } = this.props;
     const { ui } = this.stores;
     const selectedClass = ui.isSelectedTile(model) ? " selected" : "";
@@ -35,7 +47,10 @@ export class ToolTileComponent extends BaseComponent<IProps, {}> {
     );
   }
 
-  private renderTile() {
+  /*
+  * TODO: review this with renderTile and resolve difference.
+  */
+  private old_renderTile() {
     const { model } = this.props;
     switch (model.content.type) {
       case kGeometryToolID: return this.renderGeometryTile();
