@@ -214,25 +214,31 @@ export const getPortalJWTWithBearerToken = (basePortalUrl: string, type: string,
 };
 
 export const getFirebaseJWTWithBearerToken = (basePortalUrl: string, type: string, rawToken: string) => {
+  console.log(`getFirebaseJWTWithBearerToken [begin]`);
   return new Promise<[string, PortalFirebaseJWT]>((resolve, reject) => {
     const url = `${basePortalUrl}${FIREBASE_JWT_URL_SUFFIX}${FIREBASE_JWT_QUERY}`;
+    console.log(`getFirebaseJWTWithBearerToken: [superagent.get("${url}")]`);
     superagent
       .get(url)
       .set("Authorization", `${type} ${rawToken}`)
       .end((err, res) => {
         if (err) {
+          console.log(`getFirebaseJWTWithBearerToken [reject()]`);
           reject(getErrorMessage(err, res));
         }
         else if (!res.body || !res.body.token) {
+          console.log(`getFirebaseJWTWithBearerToken [reject()]`);
           reject("No Firebase token found in Firebase JWT request response");
         }
         else {
           const {token} = res.body;
           const firebaseJWT = jwt.decode(token);
           if (firebaseJWT) {
+            console.log(`getFirebaseJWTWithBearerToken [resolve()]`);
             resolve([token, firebaseJWT as PortalFirebaseJWT]);
           }
           else {
+            console.log(`getFirebaseJWTWithBearerToken [reject()]`);
             reject("Invalid Firebase token");
           }
         }
@@ -307,6 +313,7 @@ export const getClassInfo = (params: GetClassInfoParams) => {
 };
 
 export const authenticate = (appMode: AppMode, urlParams?: QueryParams) => {
+  console.log(`authenticate [begin]`);
   // tslint:disable-next-line:max-line-length
   return new Promise<{authenticatedUser: AuthenticatedUser, classInfo?: ClassInfo, problemId?: string}>((resolve, reject) => {
     urlParams = urlParams || DefaultUrlParams;
@@ -359,9 +366,11 @@ export const authenticate = (appMode: AppMode, urlParams?: QueryParams) => {
       return reject("Missing domain query parameter!");
     }
 
+    console.log(`authenticate [getPortalJWTWithBearerToken()]`);
     return getPortalJWTWithBearerToken(basePortalUrl, "Bearer", bearerToken)
       .then(([rawPortalJWT, portalJWT]) => {
 
+        console.log(`authenticate [getFirebaseJWTWithBearerToken()]`);
         return getFirebaseJWTWithBearerToken(basePortalUrl, "Bearer", bearerToken)
           .then(([rawFirebaseJWT, firebaseJWT]) => {
 
@@ -380,6 +389,7 @@ export const authenticate = (appMode: AppMode, urlParams?: QueryParams) => {
               }
 
               if (classInfoUrl && offeringId) {
+                console.log(`authenticate [getClassInfo()]`);
                 return getClassInfo({classInfoUrl, rawPortalJWT, portal, offeringId})
                   .then((classInfo) => {
                     const uidAsString = `${portalJWT.uid}`;
@@ -398,8 +408,10 @@ export const authenticate = (appMode: AppMode, urlParams?: QueryParams) => {
                       authenticatedUser.id = uidAsString;
                       authenticatedUser.portal = portal;
 
+                      console.log(`authenticate [getProblemIdForAuthenticatedUser()]`);
                       getProblemIdForAuthenticatedUser(rawPortalJWT, urlParams).then((problemId) => {
                         if (authenticatedUser) {
+                          console.log(`authenticate [resolve({authenticatedUser, classInfo, problemId})]`);
                           resolve({authenticatedUser, classInfo, problemId});
                         }
                       });

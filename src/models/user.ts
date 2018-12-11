@@ -43,6 +43,8 @@ export const UserModel = types
       self.className = user.className;
       self.classHash = user.classHash;
       self.offeringId = user.offeringId;
+      console.log(`UserModel.setAuthenticatedUser: id: ${self.id}, latestGroupId: ${self.latestGroupId}`);
+      console.log(`UserModel.setAuthenticatedUser: class: ${self.className}, offering: ${self.offeringId}`);
     },
   }))
   .views((self) => ({
