@@ -82,6 +82,7 @@ export class DB {
   }
 
   public connect(options: IDBConnectOptions) {
+    console.log(`DB.connect() [begin]`);
     return new Promise<void>((resolve, reject) => {
       if (this.firebase.isConnected) {
         reject("Already connected to database!");
@@ -102,21 +103,26 @@ export class DB {
       this.stores = options.stores;
 
       if (options.appMode === "authed") {
+        console.log(`DB.connect() [firebase.auth(options.rawFirebaseJWT)]`);
         firebase.auth()
           .signInWithCustomToken(options.rawFirebaseJWT)
           .catch(reject);
       }
       else {
+        console.log(`DB.connect() [firebase.auth()]`);
         firebase.auth()
           .signInAnonymously()
           .catch(reject);
       }
 
       firebase.auth().onAuthStateChanged((firebaseUser) => {
+        console.log(`DB.connect() [onAuthStateChanged()]`);
         if (firebaseUser) {
           this.appMode = options.appMode;
           this.firebase.user = firebaseUser;
+          console.log(`DB.connect() [listeners.stop()]`);
           this.listeners.stop();
+          console.log(`DB.connect() [listeners.start()]`);
           this.listeners.start().then(resolve).catch(reject);
         }
       });
@@ -137,17 +143,21 @@ export class DB {
     const groupRef = this.firebase.ref(this.firebase.getGroupPath(user, groupId));
     let userRef: firebase.database.Reference;
 
+    console.log(`DB.joinGroup [begin]`);
     return new Promise<void>((resolve, reject) => {
+      console.log(`DB.joinGroup [groupRef.once("value")]`);
       groupRef.once("value")
         .then((snapshot) => {
+          console.log(`DB.joinGroup [groupRef.once("value").then(snapshot)]`);
           // if the group doesn't exist create it
           if (!snapshot.val()) {
+            console.log(`DB.joinGroup [groupRef.set()]`);
             return groupRef.set({
               version: "1.0",
               self: {
                 classHash: user.classHash,
                 offeringId: user.offeringId,
-                groupId,
+                groupId
               },
               users: {},
             } as DBOfferingGroup);
@@ -156,6 +166,7 @@ export class DB {
         .then(() => {
           // always add the user to the group, the listeners will sort out if the group is oversubscribed
           userRef = groupRef.child("users").child(user.id);
+          console.log(`DB.joinGroup [userRef.set()]`);
           return userRef.set({
             version: "1.0",
             self: {
@@ -168,14 +179,22 @@ export class DB {
           } as DBOfferingGroupUser);
         })
         .then(() => {
+          console.log(`DB.joinGroup [setConnectionHandlers()]`);
           return this.firebase.setConnectionHandlers(userRef);
         })
         .then(() => {
           // remember the last group joined
+          console.log(`DB.joinGroup [getLatestGroupIdRef().set(groupId)]`);
           return this.firebase.getLatestGroupIdRef().set(groupId);
         })
-        .then(resolve)
-        .catch(reject);
+        .then((result) => {
+          console.log(`DB.joinGroup [resolve()]`);
+          resolve(result);
+        })
+        .catch((error) => {
+          console.log(`DB.joinGroup [reject()] error: ${error}`);
+          reject(error);
+        });
     });
   }
 

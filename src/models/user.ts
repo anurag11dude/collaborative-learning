@@ -47,6 +47,8 @@ export const UserModel = types
       if (user.firebaseJWT && (user.firebaseJWT as PortalFirebaseStudentJWT).returnUrl) {
         self.loggingRemoteEndpoint = (user.firebaseJWT as PortalFirebaseStudentJWT).returnUrl;
       }
+      console.log(`UserModel.setAuthenticatedUser: id: ${self.id}, latestGroupId: ${self.latestGroupId}`);
+      console.log(`UserModel.setAuthenticatedUser: class: ${self.className}, classHash: ${self.classHash}`);
     },
   }))
   .views((self) => ({

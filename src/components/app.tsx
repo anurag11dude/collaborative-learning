@@ -21,8 +21,10 @@ interface IState {
 export const authAndConnect = (stores: IStores, onQAClear?: (result: boolean, err?: string) => void) => {
   const {appMode, user, db, ui} = stores;
 
+  console.log(`authAndConnect [authenticate()]`);
   authenticate(appMode, urlParams)
     .then(({authenticatedUser, classInfo, problemId}) => {
+      console.log(`authAndConnect [setAuthenticatedUser()]`);
       user.setAuthenticatedUser(authenticatedUser);
       if (classInfo) {
         stores.class.updateFromPortal(classInfo);
@@ -34,6 +36,9 @@ export const authAndConnect = (stores: IStores, onQAClear?: (result: boolean, er
       if (appMode === "authed")  {
         const { rawFirebaseJWT } = authenticatedUser;
         if (rawFirebaseJWT) {
+          console.log(`authAndConnect [authed][db.connect()]`);
+          // tslint:disable-next-line:max-line-length
+          console.log(`authAndConnect [db.connect()] firebaseJWT.classHash: ${authenticatedUser!.firebaseJWT!.claims.class_hash}`);
           db.connect({appMode, stores, rawFirebaseJWT}).catch(ui.setError);
         }
         else {
@@ -41,6 +46,7 @@ export const authAndConnect = (stores: IStores, onQAClear?: (result: boolean, er
         }
       }
       else {
+        console.log(`authAndConnect [unauthed][db.connect()]`);
         db.connect({appMode, stores})
           .then(() => {
             if (appMode === "qa") {

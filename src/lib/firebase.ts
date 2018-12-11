@@ -154,12 +154,16 @@ export class Firebase {
       this.connectedRef = firebase.database().ref(".info/connected");
     }
     // once() ensures that the connected timestamp is set before resolving
+    console.log(`Firebase.setConnectionHandlers [connectedRef.once("value")]`);
     return this.connectedRef.once("value", (snapshot) => {
+        console.log(`Firebase.setConnectionHandlers [once: handleConnectedRef()]`);
         return this.handleConnectedRef(userRef, snapshot);
       })
       .then(() => {
         if (this.connectedRef) {
+          console.log(`Firebase.setConnectionHandlers [connectedRef.once("value")]`);
           this.connectedRef.on("value", (snapshot) => {
+            console.log(`Firebase.setConnectionHandlers [on: handleConnectedRef()]`);
             this.handleConnectedRef(userRef, snapshot || undefined);
           });
         }
@@ -219,10 +223,12 @@ export class Firebase {
   //
 
   public getLatestGroupIdRef() {
+    console.log(`Firebase.getLatestGroupIdRef()`);
     return this.ref(this.getUserPath(this.db.stores.user)).child("latestGroupId");
   }
 
   private handleConnectedRef = (userRef: firebase.database.Reference, snapshot?: firebase.database.DataSnapshot, ) => {
+    console.log(`Firebase.handleConnectedRef()`);
     if (snapshot && snapshot.val()) {
       return userRef.child("connectedTimestamp").set(firebase.database.ServerValue.TIMESTAMP);
     }

@@ -12,15 +12,19 @@ export class DBGroupsListener {
   }
 
   public start() {
+    console.log(`DBGroupsListener.start [begin]`);
     return new Promise<void>((resolve, reject) => {
       const {user, groups} = this.db.stores;
       const groupsRef = this.groupsRef = this.db.firebase.ref(this.db.firebase.getGroupsPath(user));
 
       // use once() so we are ensured that groups are set before we resolve
+      console.log(`DBGroupsListener.start [groupsRef.once("value")]`);
       groupsRef.once("value")
         .then((snapshot) => {
+          console.log(`DBGroupsListener.start [groupsRef.once("value").then(snapshot)]`);
           const dbGroups: DBOfferingGroupMap = snapshot.val() || {};
           // Groups may be invalid at this point, but the listener will resolve it once connection times are set
+          console.log(`DBGroupsListener.start [groups.updateFromDB()]`);
           groups.updateFromDB(user.id, dbGroups, this.db.stores.class);
 
           const group = groups.groupForUser(user.id);
@@ -31,14 +35,22 @@ export class DBGroupsListener {
           }
           else if (user.latestGroupId) {
             // if we are not currently in a group try to join the latest group
+            console.log(`DBGroupsListener.start [joinGroup(user.latestGroupId)]`);
             return this.db.joinGroup(user.latestGroupId);
           }
         })
         .then(() => {
+          console.log(`DBGroupsListener.start [groupsRef.on("value", this.handleGroupsRef)]`);
           groupsRef.on("value", this.handleGroupsRef);
         })
-        .then(resolve)
-        .catch(reject);
+        .then((result) => {
+          console.log(`DBGroupsListener.start [resolve()]`);
+          resolve(result);
+        })
+        .catch((error) => {
+          console.log(`DBGroupsListener.start [reject()]: ${error}`);
+          reject(error);
+        });
     });
   }
 

@@ -56,26 +56,39 @@ export class DBListeners {
   }
 
   public start() {
+    console.log(`DBlisteners.start() [begin]`);
     return new Promise<void>((resolve, reject) => {
       // listeners must start in this order so we know the latest group joined so we can autojoin groups if needed
+      console.log(`DBlisteners.start() [latestGroupIdListener.start()]`);
       this.latestGroupIdListener.start()
         .then(() => {
+          console.log(`DBlisteners.start() [groupsListener.start()]`);
           return this.groupsListener.start();
         })
         .then(() => {
+          console.log(`DBlisteners.start() [sectionDocumentsListener.start()]`);
           return this.sectionDocumentsListener.start();
         })
         .then(() => {
+          console.log(`DBlisteners.start() [learningLogsListener.start()]`);
           return this.learningLogsListener.start();
         })
         .then(() => {
+          console.log(`DBlisteners.start() [publicationListener.start()]`);
           return this.publicationListener.start();
         })
         .then(() => {
+          console.log(`DBlisteners.start() [this.isListening = true]`);
           this.isListening = true;
         })
-        .then(resolve)
-        .catch(reject);
+        .then((result) => {
+          console.log(`DBlisteners.start() [resolve()]`);
+          resolve(result);
+        })
+        .catch((error) => {
+          console.log(`DBlisteners.start() [reject()] error: ${error}`);
+          reject(error);
+        });
     });
   }
 
