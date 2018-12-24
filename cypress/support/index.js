@@ -26,6 +26,11 @@ before(function(){
     cy.clearQAData('all');
     cy.visit(baseUrl+queryParams);
     cy.wait(2000);
+
+    //quickie dev mode test - includes quick join group
+    // cy.visit('localhost:8080/?appMode=dev')
+    // // cy.get('select').select('Group ' + group1);
+    // cy.get('[value="Create Group"]').click();
 });
 
 Cypress.on('uncaught:exception', (err, runnable) => {
