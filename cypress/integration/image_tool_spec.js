@@ -78,22 +78,19 @@ context('Test image functionalities', function(){
             const imageFileURL = ['https://codap.concord.org/~eireland/image.png', 'https://codap.concord.org/~eireland/case_image.jpg', 'https://codap.concord.org/~eireland/model_image.gif'];
 
             leftNav.openToWorkspace('Extra Workspace');
-            imageToolTile.getImageToolImage().each(($images, index, $list)=>{
-                expect($list).to.have.length(3);
-                expect($images).to.have.css('background-image').and.contains(imageFileURL[index]);
-            });
-            // imageToolTile.getImageToolImage().first().should('have.css', 'background-image','url("'+imageFileURL1+'")');
-            // //have to figure out how to check the middle one
-            // imageToolTile.getImageToolImage().last().should('have.css', 'background-image','url("'+imageFileURL3+'")');
+            imageToolTile.getImageToolImage().should('have.length', '3');
+            imageToolTile.getImageToolImage().first().should('have.css', 'background-image','url("'+imageFileURL[0]+'")');
+            imageToolTile.getImageToolImage().eq(1).should('have.css', 'background-image','url("'+imageFileURL[1]+'")');
+            imageToolTile.getImageToolImage().last().should('have.css', 'background-image','url("'+imageFileURL[2]+'")');
         });
         it('will verify all three images that were added by upload in above test are in the tab when re-opened', function(){
             const imageFilePath=['image.png','case_image.jpg','model_image.gif'];
 
             leftNav.openToWorkspace('What if');
-            imageToolTile.getImageToolImage().each(($images, index, $list)=>{
-                expect($list).to.have.length(3);
-                expect($images).to.have.css('background-image').and.contains(imageFilePath[index]);
-            })
+            imageToolTile.getImageToolImage().should('have.length', '3');
+            imageToolTile.getImageToolImage().first().should('have.css', 'background-image').and('contain','url("blob:https://collaborative-learning.concord.org/');
+            imageToolTile.getImageToolImage().eq(1).should('have.css', 'background-image').and('contain','url("blob:https://collaborative-learning.concord.org/');
+            imageToolTile.getImageToolImage().last().should('have.css', 'background-image').and('contain','url("blob:https://collaborative-learning.concord.org/');
 
         })
     });
