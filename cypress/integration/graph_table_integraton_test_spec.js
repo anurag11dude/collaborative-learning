@@ -43,30 +43,45 @@ context('Tests for graph and table integration', function(){
             addTableAndGraph();
             connectTableToGraph();
         });
-        describe('Test blank cells',function(){//verify this is still true
-            it('will add a blank row', function(){ 
-                tableToolTile.addNewRow();
-                tableToolTile.getTableIndexColumnCell().first().should('contain', 'p1');
-                graphToolTile.getGraphPointLabel().contains('p1').should('exist');
-                graphToolTile.getGraphPointCoordinates().should('contain', '(0, 0)' )
+        describe('will test table validation', function(){
+            describe('Test blank cells',function(){//verify this is still true
+                it('will add a blank row', function(){ 
+                    tableToolTile.addNewRow();
+                    tableToolTile.getTableIndexColumnCell().first().should('contain', 'p1');
+                    graphToolTile.getGraphPointLabel().contains('p1').should('exist');
+                    graphToolTile.getGraphPointCoordinates().should('contain', '(0, 0)' )
+                });
+                it('will add a coordinate in x only column', function(){
+                    let xCoord = '9';
+                    tableToolTile.addNewRow();
+                    tableToolTile.getTableIndexColumnCell().eq(1).should('contain', 'p2');
+                    tableToolTile.getTableCell().eq(2).type(xCoord+'{enter}');
+                    graphToolTile.getGraphPointLabel().contains('p2').should('exist');
+                    graphToolTile.getGraphPointCoordinates().should('contain', '('+xCoord+', 0)' )
+                });
+                it('will add a coordinate in y only column', function(){
+                    let yCoord = '9';
+                    tableToolTile.addNewRow();
+                    tableToolTile.getTableIndexColumnCell().eq(2).should('contain', 'p3');
+                    tableToolTile.getTableCell().eq(5).type(yCoord+'{enter}');
+                    graphToolTile.getGraphPointLabel().contains('p3').should('exist');
+                    graphToolTile.getGraphPointCoordinates().should('contain', '(0, '+yCoord+')');
+                });
             });
-            it('will add a coordinate in x only column', function(){
-                let xCoord = '9';
-                tableToolTile.addNewRow();
-                tableToolTile.getTableIndexColumnCell().eq(1).should('contain', 'p2');
-                tableToolTile.getTableCell().eq(2).type('9{enter}');
-                graphToolTile.getGraphPointLabel().contains('p2').should('exist');
-                graphToolTile.getGraphPointCoordinates().should('contain', '('+xCoord+', 0)' )
+            describe('test non-numeric entries in table', function(){
+                it('will enter non-numeric number in the table', function(){
+                    tableToolTile.getTableCell().eq(6).type('g{enter}');
+                    tableToolTile.getTableCell().eq(6).should('be.empty')
+                })
             });
-            it('will add a coordinate in y only column', function(){
-                let yCoord = '9';
-                tableToolTile.addNewRow();
-                tableToolTile.getTableIndexColumnCell().eq(2).should('contain', 'p3');
-                tableToolTile.getTableCell().eq(5).type(yCoord+'{enter}');
-                graphToolTile.getGraphPointLabel().contains('p3').should('exist');
-                graphToolTile.getGraphPointCoordinates().should('contain', '(0, '+yCoord+')');
-            });
-        });
+            describe('test floats', function(){
+                it('will test floats', function(){
+
+                })
+            })
+        })
+
+
         describe('test creating a polygon', function (){
             it('will add both coordinates in the table', function(){
                 tableToolTile.getTableCell().eq(6).type('5');
@@ -162,12 +177,6 @@ context('Tests for graph and table integration', function(){
                 cy.get('.canvas-area .geometry-content svg g image').should('exist');    
             });
         });
-        describe('test non-numeric entries in table', function(){
-            it('will enter non-numeric number in the table', function(){
-                tableToolTile.getTableCell().eq(6).type('g{enter}');
-                tableToolTile.getTableCell().eq(6).should('be.empty')
-            })
-        });
         describe('Test disconnecting the table', function(){
             it('will delete the connected table', function(){
                 canvas.deleteTile('table');
@@ -202,9 +211,31 @@ context('Tests for graph and table integration', function(){
             tableToolTile.renameColumn('x', 'neptune');
             tableToolTile.renameColumn('y', 'saturn');
         });
+        it('will add floats', function(){
+
+        })
+        it('will add blanks', function(){
+
+        })
+        it('will add non-numerics', function(){
+                
+        })
+        
         it('will connect table to graph', function(){
             connectTableToGraph();
         });
+        describe('will test table validation', function(){
+            it('will test floats', function(){
+
+            })
+            it('will test blanks', function(){
+
+            })
+            it('will test non-numerics', function(){
+                
+            })
+        })
+
         it('verify table is labeled with point names', function(){
             tableToolTile.getTableIndexColumnCell().eq(0).should('contain', 'p1');
             tableToolTile.getTableIndexColumnCell().eq(1).should('contain', 'p2');
