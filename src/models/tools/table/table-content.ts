@@ -5,6 +5,7 @@ import { castArray, each } from "lodash";
 import { GeometryContentModelType } from "../geometry/geometry-content";
 import { JXGChange } from "../geometry/jxg-changes";
 import { getTileContentById } from "../../../utilities/mst-utils";
+const Parser = require("expr-eval").Parser;
 
 export const kTableToolID = "Table";
 export const kCaseIdName = "__id__";
@@ -71,6 +72,7 @@ export interface ITableProperties {
   rows?: IRowProperties[];
   beforeId?: string | string[];
   name?: string;
+  equation?: string;
 }
 
 export interface ITableChange {
@@ -84,7 +86,8 @@ export interface ITableChange {
 export const TableMetadataModel = types
   .model("TableMetadata", {
     id: types.string,
-    linkedGeometries: types.array(types.string)
+    linkedGeometries: types.array(types.string),
+    equations: types.map(types.string)
   })
   .views(self => ({
     get isLinked() {
@@ -105,6 +108,9 @@ export const TableMetadataModel = types
     },
     clearLinkedGeometries() {
       self.linkedGeometries.clear();
+    },
+    setEquation(colId: string, equation: string) {
+      self.equations.set(colId, equation);
     }
   }));
 export type TableMetadataModelType = Instance<typeof TableMetadataModel>;
@@ -237,6 +243,14 @@ export const TableContentModel = types
               ids
             });
     },
+    setEquation(id: string, equation: string) {
+      self.appendChange({
+        action: "update",
+        target: "columns",
+        ids: id,
+        props: { equation }
+      });
+    },
     addCanonicalCases(cases: ICaseCreation[], beforeID?: string | string[], links?: ILinkProperties) {
       self.appendChange({
             action: "create",
@@ -293,6 +307,24 @@ export const TableContentModel = types
     }
   }))
   .views(self => ({
+    updateDatasetWithValidEquations(dataSet: IDataSet) {
+      dataSet.attributes.forEach(attr => {
+        const equation = self.metadata.equations.get(attr.id);
+        if (equation) {
+          const xAttr = dataSet.attributes[0];
+          const parser = new Parser();
+          for (let i = 0; i < attr.values.length; i++) {
+            const xVal = xAttr.value(i);
+            const equationVal = parser.parse(equation).evaluate({x: xVal});
+            attr.setValue(i, isFinite(equationVal) ? equationVal + "" : "0");
+          }
+        }
+      });
+
+      return dataSet;
+    }
+  }))
+  .views(self => ({
     applyCreate(dataSet: IDataSet, change: ITableChange) {
       const tableProps = change && change.props as ITableProperties;
       switch (change.target) {
@@ -313,6 +345,7 @@ export const TableContentModel = types
           if (rows && rows.length) {
             dataSet.addCanonicalCasesWithIDs(rows, beforeId);
           }
+          self.updateDatasetWithValidEquations(dataSet);
           break;
         case "geometryLink":
           const geometryId = change.ids && change.ids as string;
@@ -331,6 +364,10 @@ export const TableContentModel = types
                 case "name":
                   dataSet.setAttributeName(ids[colIndex], value);
                   break;
+                case "equation":
+                  self.metadata.setEquation(ids[colIndex], value);
+                  self.updateDatasetWithValidEquations(dataSet);
+                  break;
               }
             });
           });
@@ -340,6 +377,7 @@ export const TableContentModel = types
           rowProps && rowProps.forEach((row: any, rowIndex) => {
             dataSet.setCanonicalCaseValues([{ __id__: ids[rowIndex], ...row }]);
           });
+          self.updateDatasetWithValidEquations(dataSet);
           break;
       }
     },
@@ -386,6 +424,19 @@ export const TableContentModel = types
     }
   }))
   .views(self => ({
+    isValidForGeometryLink() {
+      const dataSet = DataSet.create();
+      self.applyChanges(dataSet);
+
+      const attrIds = dataSet.attributes.map(attr => attr.id);
+      for (const aCase of dataSet.cases) {
+        if (!attrIds.every(attrId => isLinkableValue(dataSet.getValue(aCase.__id__, attrId)))) {
+          return false;
+        }
+      }
+      return true;
+    },
+
     getSharedData(canonicalize: boolean = true) {
       const dataSet = DataSet.create();
       self.applyChanges(dataSet);
@@ -407,18 +458,6 @@ export const TableContentModel = types
       }
       return dataSet;
     },
-    isValidForGeometryLink() {
-      const dataSet = DataSet.create();
-      self.applyChanges(dataSet);
-
-      const attrIds = dataSet.attributes.map(attr => attr.id);
-      for (const aCase of dataSet.cases) {
-        if (!attrIds.every(attrId => isLinkableValue(dataSet.getValue(aCase.__id__, attrId)))) {
-          return false;
-        }
-      }
-      return true;
-    }
   }));
 
 export type TableContentModelType = Instance<typeof TableContentModel>;

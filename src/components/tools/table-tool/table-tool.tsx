@@ -11,7 +11,7 @@ import { ToolTileModelType } from "../../../models/tools/tool-tile";
 import { canonicalizeValue, getRowLabel, isLinkableValue, ILinkProperties, ITableLinkProperties,
           TableContentModelType, TableMetadataModelType } from "../../../models/tools/table/table-content";
 import { ValueGetterParams, ValueFormatterParams } from "ag-grid-community";
-import { JXGCoordPair } from "../../../models/tools/geometry/jxg-changes";
+import { JXGCoordPair, JXGProperties } from "../../../models/tools/geometry/jxg-changes";
 import { HotKeys } from "../../../utilities/hot-keys";
 import { uniqueId } from "../../../utilities/js-utils";
 import { each, sortedIndexOf } from "lodash";
@@ -107,6 +107,7 @@ export default class TableToolComponent extends BaseComponent<IProps, IState> {
           tabIndex={this.props.tabIndex} onKeyDown={this.handleKeyDown} >
         <DataTableComponent
           dataSet={this.state.dataSet}
+          metadata={this.getContent().metadata}
           changeCount={this.state.syncedChanges}
           autoSizeColumns={this.getContent().isImported}
           indexValueGetter={this.indexValueGetter}
@@ -118,6 +119,7 @@ export default class TableToolComponent extends BaseComponent<IProps, IState> {
           readOnly={readOnly}
           onGridReady={this.handleGridReady}
           onSetAttributeName={this.handleSetAttributeName}
+          onSetEquation={this.handleSetEquation}
           onAddCanonicalCases={this.handleAddCanonicalCases}
           onSetCanonicalCaseValues={this.handleSetCanonicalCaseValues}
           onRemoveCases={this.handleRemoveCases}
@@ -303,18 +305,39 @@ export default class TableToolComponent extends BaseComponent<IProps, IState> {
     });
   }
 
+  private handleSetEquation = (attributeId: string, equation: string) => {
+    this.getContent().setEquation(attributeId, equation);
+    setTimeout(() => {
+      const dataSet = this.state.dataSet;
+      const tableActionLinks = this.getTableActionLinks();
+      const geomActionLinks = this.getGeometryActionLinks(tableActionLinks);
+      const ids: string[] = [];
+      const props: JXGProperties[] = [];
+      dataSet.cases.forEach(aCase => {
+        const caseId = aCase.__id__;
+        ids.push(caseId);
+        const position = this.getPositionOfPoint(caseId) as JXGCoordPair;
+        props.push({ position });
+      });
+      this.getContent().metadata.linkedGeometries.forEach(id => {
+        const geometryContent = this.getGeometryContent(id);
+        if (geometryContent) {
+          geometryContent.updateObjects(undefined, ids, props, geomActionLinks);
+        }
+      });
+    });
+  }
+
   private handleAddCanonicalCases = (newCases: ICase[]) => {
     const validateCase = (aCase: ICase) => {
-      const newCase: ICase = { __id__: uniqueId() };
-      if (this.getContent().isLinked) {
-        // validate linkable values
-        this.state.dataSet.attributes.forEach(attr => {
-          const value = aCase[attr.id];
-          newCase[attr.id] = isLinkableValue(value) ? value : 0;
-        });
-        return newCase;
-      }
-      return { ...newCase, ...aCase };
+      const newCase: ICase = { __id__: uniqueId(), ...aCase };
+      this.state.dataSet.attributes.forEach(attr => {
+        if (this.getContent().isLinked) {
+          const linkedValue = aCase[attr.id];
+          newCase[attr.id] = isLinkableValue(linkedValue) ? linkedValue : 0;
+        }
+      });
+      return newCase;
     };
     const cases = newCases.map(aCase => validateCase(aCase));
     const selectedRowIds = this.gridApi && this.gridApi.getSelectedNodes().map(row => row.id);

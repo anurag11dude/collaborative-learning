@@ -5,6 +5,9 @@ import { IDataSet } from "../../../models/data/data-set";
 import { GridApi } from "ag-grid-community";
 import { Icon, Menu, Popover, Position, MenuDivider, MenuItem } from "@blueprintjs/core";
 import { listenForTableEvents } from "../../../models/tools/table/table-events";
+import { TableMetadataModelType } from "../../../models/tools/table/table-content";
+import UpdateEquationDialog from "./update-equation-dialog";
+import { IAttribute } from "../../../models/data/attribute";
 
 export interface IMenuItemFlags {
   addAttribute?: boolean;
@@ -17,11 +20,13 @@ export interface IMenuItemFlags {
 
 interface IProps {
   api: GridApi;
+  metadata: TableMetadataModelType;
   dataSet?: IDataSet;
   readOnly?: boolean;
   itemFlags?: IMenuItemFlags;
   onNewAttribute: (name: string) => void;
   onRenameAttribute: (id: string, name: string) => void;
+  onUpdateEquation: (id: string, equation: string) => void;
   onNewCase: () => void;
   onRemoveAttribute: (id: string) => void;
   onRemoveCases: (ids: string[]) => void;
@@ -33,6 +38,10 @@ interface IState {
   isRenameAttributeDialogOpen: boolean;
   renameAttributeId: string;
   renameAttributeName: string;
+
+  isUpdateEquationDialogOpen: boolean;
+  updateEquationAttributeId: string;
+  updateEquationValue: string;
 }
 
 export class TableHeaderMenu extends React.Component<IProps, IState> {
@@ -44,7 +53,11 @@ export class TableHeaderMenu extends React.Component<IProps, IState> {
       isNewAttributeDialogOpen: false,
       isRenameAttributeDialogOpen: false,
       renameAttributeId: "",
-      renameAttributeName: ""
+      renameAttributeName: "",
+
+      isUpdateEquationDialogOpen: false,
+      updateEquationAttributeId: "",
+      updateEquationValue: ""
     };
 
     listenForTableEvents((event) => {
@@ -85,6 +98,7 @@ export class TableHeaderMenu extends React.Component<IProps, IState> {
           onClose={this.closeNewAttributeDialog}
         />
         {this.renderRenameColumnDialog()}
+        {this.renderUpdateEquationDialog()}
       </div>
     );
   }
@@ -97,6 +111,19 @@ export class TableHeaderMenu extends React.Component<IProps, IState> {
                 onRenameAttribute={this.handleRenameAttributeCallback}
                 onClose={this.closeRenameAttributeDialog}
                 name={this.state.renameAttributeName}
+              />
+            : null;
+  }
+
+  private renderUpdateEquationDialog() {
+    const id = this.state.updateEquationAttributeId;
+    return this.state.isUpdateEquationDialogOpen
+            ? <UpdateEquationDialog
+                id={id}
+                isOpen={true}
+                onUpdateEquation={this.handleUpdateEquationCallback}
+                onClose={this.closeUpdateEquationDialog}
+                equation={this.props.metadata.equations.get(id) || ""}
               />
             : null;
   }
@@ -123,6 +150,23 @@ export class TableHeaderMenu extends React.Component<IProps, IState> {
       isRenameAttributeDialogOpen: true,
       renameAttributeId: attrID,
       renameAttributeName: name
+    });
+  }
+
+  private closeUpdateEquationDialog = () => {
+    this.setState({ isUpdateEquationDialogOpen: false });
+  }
+
+  private handleUpdateEquationCallback = (id: string, equation: string) => {
+    this.props.onUpdateEquation(id, equation);
+    this.closeUpdateEquationDialog();
+  }
+
+  private handleUpdateEquation = (evt: React.MouseEvent<HTMLElement>, attrID: string, equation: string) => {
+    this.setState({
+      isUpdateEquationDialogOpen: true,
+      updateEquationAttributeId: attrID,
+      updateEquationValue: equation
     });
   }
 
@@ -155,9 +199,13 @@ export class TableHeaderMenu extends React.Component<IProps, IState> {
   }
 
   private renderAttributeSubMenuItems(onClick: (evt: React.MouseEvent<HTMLElement>,
-                                                attrID: string, name?: string) => void) {
+                                                attrID: string, name?: string) => void,
+                                      attributesFilter?: (attr: IAttribute, index: number) => boolean) {
     if (!this.props.dataSet || !this.props.dataSet.attributes.length) { return null; }
-    return this.props.dataSet.attributes.map((attr) => {
+    const attributes = attributesFilter
+      ? this.props.dataSet.attributes.filter(attributesFilter)
+      : this.props.dataSet.attributes;
+    return attributes.map((attr) => {
       function handleClick(evt: React.MouseEvent<HTMLElement>) {
         return onClick(evt, attr.id, attr.name);
       }
@@ -202,6 +250,16 @@ export class TableHeaderMenu extends React.Component<IProps, IState> {
                               {this.renderAttributeSubMenuItems(this.handleRenameAttribute)}
                             </MenuItem>
                           : null;
+    const updateEquation = itemFlags.renameAttribute !== false
+                            ? <MenuItem
+                                icon="text-highlight"
+                                text={`Set Equation...`}
+                                data-test={`set-equation-menu-item`}
+                                disabled={!this.props.dataSet || !this.props.dataSet.attributes.length}
+                              >
+                                {this.renderAttributeSubMenuItems(this.handleUpdateEquation, (attr, i) => i > 0)}
+                              </MenuItem>
+                            : null;
     const removeColumn = itemFlags.removeAttribute !== false
                           ? <MenuItem
                               icon="remove-column"
@@ -229,6 +287,7 @@ export class TableHeaderMenu extends React.Component<IProps, IState> {
         {renameColumn}
         {removeColumn}
         {removeRows}
+        {updateEquation}
       </Menu>
     );
   }
