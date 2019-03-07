@@ -262,7 +262,9 @@ export default class DataTableComponent extends React.Component<IProps, IState> 
   }
 
   public getAttributeColumnDef(attribute: IAttribute): ColDef {
-    const { readOnly } = this.props;
+    const { readOnly, metadata } = this.props;
+    const equation = metadata.equations.get(attribute.id);
+    const editable = !readOnly && !equation;
 
     function defaultAttrValueFormatter(params: ValueFormatterParams) {
       const colName = params.colDef.field || params.colDef.headerName || "";
@@ -282,12 +284,12 @@ export default class DataTableComponent extends React.Component<IProps, IState> 
 
     return ({
       headerClass: "cdp-column-header cdp-attr-column-header",
-      cellClass: "cdp-row-data-cell",
+      cellClass: `cdp-row-data-cell ${!editable ? "locked" : "editable"}`,
       headerName: attribute.name,
       field: attribute.name,
       tooltipField: attribute.name,
       colId: attribute.id,
-      editable: !readOnly,
+      editable,
       width: defaultWidth,
       resizable: true,
       lockPosition: true,
@@ -387,6 +389,12 @@ export default class DataTableComponent extends React.Component<IProps, IState> 
       const colDef = columnApi.getColumn(newColDef.colId).getColDef();
       if (colDef.headerName !== newColDef.headerName) {
         colDef.headerName = newColDef.headerName;
+      }
+      if (colDef.editable !== newColDef.editable) {
+        colDef.editable = newColDef.editable;
+      }
+      if (colDef.cellClass !== newColDef.cellClass) {
+        colDef.cellClass = newColDef.cellClass;
       }
     });
     if (this.gridApi) {
