@@ -16,6 +16,7 @@ import { DocumentsModelType } from "../stores/documents";
 import { getParentWithTypeName } from "../../utilities/mst-utils";
 import { IDropRowInfo } from "../../components/document/document-content";
 import { DocumentTool } from "./document";
+import { defaultFlowContent } from "../tools/flow/flow-content";
 
 export interface NewRowOptions {
   rowHeight?: number;
@@ -210,7 +211,8 @@ export const DocumentContentModel = types
       return self.addTileInNewRow(defaultTextContent(initialText));
     },
     addImageTile() {
-      return self.addTileInNewRow(defaultImageContent());
+      const content = defaultImageContent();
+      return self.addTileInNewRow(content);
     },
     addDrawingTile() {
       let defaultStamps: StampModelType[];
@@ -222,6 +224,10 @@ export const DocumentContentModel = types
       }
       return self.addTileInNewRow(defaultDrawingContent({stamps: defaultStamps}),
                                   { rowHeight: kDrawingDefaultHeight });
+    },
+    addFlowTile() {
+      const content = defaultFlowContent();
+      return self.addTileInNewRow(content);
     },
     copyTileIntoRow(serializedTile: string, originalTileId: string, rowIndex: number, originalRowHeight?: number) {
       let snapshot;
@@ -372,6 +378,9 @@ export const DocumentContentModel = types
           break;
         case "drawing":
           tileInfo = self.addDrawingTile();
+          break;
+        case "flow":
+          tileInfo = self.addFlowTile();
           break;
       }
 

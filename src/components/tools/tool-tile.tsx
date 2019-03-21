@@ -15,7 +15,9 @@ import ImageToolComponent from "./image-tool";
 import DrawingToolComponent from "./drawing-tool/drawing-tool";
 import { HotKeys } from "../../utilities/hot-keys";
 import { cloneDeep } from "lodash";
+import { kFlowToolID } from "../../models/tools/flow/flow-content";
 import "./tool-tile.sass";
+import FlowToolComponent from "./flow-tool/flow-tool";
 
 export interface IToolApi {
   hasSelection: () => boolean;
@@ -72,7 +74,8 @@ const kToolComponentMap: any = {
         [kGeometryToolID]: GeometryToolComponent,
         [kImageToolID]: ImageToolComponent,
         [kTableToolID]: TableToolComponent,
-        [kTextToolID]: TextToolComponent
+        [kTextToolID]: TextToolComponent,
+        [kFlowToolID]: FlowToolComponent
       };
 
 @inject("stores")

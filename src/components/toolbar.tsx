@@ -91,6 +91,16 @@ export class ToolbarComponent extends BaseComponent<IProps, {}> {
             <use xlinkHref={`#icon-drawing-tool`} />
           </svg>
         </div>
+        <div className="tool flow" title="Flow"
+            onClick={handleClickTool("flow")}
+            onDragStart={handleDragTool("flow")}
+            draggable={true}
+            onMouseEnter={this.showDropRowHighlight}
+            onMouseLeave={this.removeDropRowHighlight}>
+          <svg className={`icon icon-flow-tool`}>
+            <use xlinkHref={`#icon-flow-tool`} />
+          </svg>
+        </div>
         <div className="tool delete" title="Delete" onClick={handleClickTool("delete")}>
           <svg className={`icon icon-delete-tool`}>
             <use xlinkHref={`#icon-delete-tool`} />

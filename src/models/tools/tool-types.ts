@@ -8,6 +8,7 @@ import { kTextToolID, TextContentModel, TextContentModelType } from "./text/text
 import { kUnknownToolID, UnknownContentModel, UnknownContentModelType } from "./unknown-content";
 import { DrawingContentModelType, DrawingContentModel, kDrawingToolID,
           DrawingToolMetadataModel, DrawingToolMetadataModelType } from "./drawing/drawing-content";
+import { FlowContentModelType, kFlowToolID, FlowContentModel } from "./flow/flow-content";
 
 export const ToolTypeEnum = types.enumeration(
                               "ToolTypes",
@@ -17,6 +18,7 @@ export const ToolTypeEnum = types.enumeration(
                                 kTableToolID,
                                 kTextToolID,
                                 kDrawingToolID,
+                                kFlowToolID,
                                 kUnknownToolID
                               ]);
 export const ToolContentUnion = types.union(
@@ -26,6 +28,7 @@ export const ToolContentUnion = types.union(
                                   TableContentModel,
                                   TextContentModel,
                                   DrawingContentModel,
+                                  FlowContentModel,
                                   UnknownContentModel);
 
 export type ToolContentUnionType = GeometryContentModelType |
@@ -33,6 +36,7 @@ export type ToolContentUnionType = GeometryContentModelType |
                                     TableContentModelType |
                                     TextContentModelType |
                                     DrawingContentModelType |
+                                    FlowContentModelType |
                                     UnknownContentModelType;
 
 export type ToolMetadataUnionType = GeometryMetadataModelType |
@@ -56,6 +60,7 @@ export const _private: IPrivate = {
     [kTableToolID]: TableContentModel,
     [kTextToolID]: TextContentModel,
     [kDrawingToolID]: DrawingContentModel,
+    [kFlowToolID]: FlowContentModel,
     [kUnknownToolID]: UnknownContentModel
   },
 
