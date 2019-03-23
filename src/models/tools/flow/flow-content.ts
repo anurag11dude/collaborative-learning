@@ -11,6 +11,12 @@ export function defaultFlowContent() {
 export const FlowContentModel = types
   .model("FlowTool", {
     type: types.optional(types.literal(kFlowToolID), kFlowToolID),
-  });
+    model: types.optional(types.string, "")
+  })
+  .actions(self => ({
+    setModel(model: string) {
+      self.model = model;
+    }
+  }));
 
 export type FlowContentModelType = Instance<typeof FlowContentModel>;

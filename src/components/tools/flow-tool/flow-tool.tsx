@@ -1,7 +1,7 @@
 import * as React from "react";
 import { BaseComponent } from "../../base";
 import { ToolTileModelType } from "../../../models/tools/tool-tile";
-import Rete from "rete";
+import Rete, { NodeEditor } from "rete";
 import { Node } from "rete";
 import ConnectionPlugin from "rete-connection-plugin";
 import VueRenderPlugin from "rete-vue-render-plugin";
@@ -9,6 +9,8 @@ import ContextMenuPlugin from "rete-context-menu-plugin";
 import AreaPlugin from "rete-area-plugin";
 import Vue from "vue";
 import { VuePlugin } from "vuera";
+import { FlowContentModelType } from "../../../models/tools/flow/flow-content";
+import { Data } from "rete/types/core/data";
 
 import "./flow-tool.sass";
 
@@ -192,14 +194,25 @@ export default class FlowToolComponent extends BaseComponent<IProps, IState> {
       // editor.connect(n1.outputs.get("num")!, add.inputs.get("num1")!);
       // editor.connect(n2.outputs.get("num")!, add.inputs.get("num2")!);
 
+      const { model } = this.getContent();
+      if (model) {
+        await editor.fromJSON(JSON.parse(model) as Data);
+        AreaPlugin.zoomAt(editor);
+      }
+
       editor.on("process nodecreated noderemoved connectioncreated connectionremoved", async () => {
         await engine.abort();
-        await engine.process(editor.toJSON());
+        const newModel = editor.toJSON();
+        this.getContent().setModel(JSON.stringify(newModel));
+        await engine.process(newModel);
       });
 
       editor.view.resize();
-      AreaPlugin.zoomAt(editor);
       editor.trigger("process");
   })();
+  }
+
+  private getContent() {
+    return this.props.model.content as FlowContentModelType;
   }
 }
