@@ -6,6 +6,7 @@ import { Node } from "rete";
 import ConnectionPlugin from "rete-connection-plugin";
 import VueRenderPlugin from "rete-vue-render-plugin";
 import ContextMenuPlugin from "rete-context-menu-plugin";
+import AreaPlugin from "rete-area-plugin";
 import Vue from "vue";
 import { VuePlugin } from "vuera";
 
@@ -165,7 +166,7 @@ export default class FlowToolComponent extends BaseComponent<IProps, IState> {
       const readyMenu = [10, 12, 14];
       const dontHide = ["click"];
       editor.use(ContextMenuPlugin);
-      // editor.use(AreaPlugin);
+      editor.use(AreaPlugin);
       // editor.use(CommentPlugin.default);
       // editor.use(HistoryPlugin);
 
@@ -176,20 +177,20 @@ export default class FlowToolComponent extends BaseComponent<IProps, IState> {
           engine.register(c);
       });
 
-      const n1 = await components[0].createNode({num: 2});
-      const n2 = await components[0].createNode({num: 0});
-      const add = await components[1].createNode();
+      // const n1 = await components[0].createNode({num: 2});
+      // const n2 = await components[0].createNode({num: 0});
+      // const add = await components[1].createNode();
 
-      n1.position = [80, 200];
-      n2.position = [80, 400];
-      add.position = [500, 240];
+      // n1.position = [80, 200];
+      // n2.position = [80, 400];
+      // add.position = [500, 240];
 
-      editor.addNode(n1);
-      editor.addNode(n2);
-      editor.addNode(add);
+      // editor.addNode(n1);
+      // editor.addNode(n2);
+      // editor.addNode(add);
 
-      editor.connect(n1.outputs.get("num")!, add.inputs.get("num1")!);
-      editor.connect(n2.outputs.get("num")!, add.inputs.get("num2")!);
+      // editor.connect(n1.outputs.get("num")!, add.inputs.get("num1")!);
+      // editor.connect(n2.outputs.get("num")!, add.inputs.get("num2")!);
 
       editor.on("process nodecreated noderemoved connectioncreated connectionremoved", async () => {
         await engine.abort();
@@ -197,7 +198,7 @@ export default class FlowToolComponent extends BaseComponent<IProps, IState> {
       });
 
       editor.view.resize();
-      // AreaPlugin.zoomAt(editor);
+      AreaPlugin.zoomAt(editor);
       editor.trigger("process");
   })();
   }
