@@ -18,6 +18,8 @@ import { cloneDeep } from "lodash";
 import { TileCommentsComponent } from "./tile-comments";
 
 import "./tool-tile.sass";
+import { kGraphToolID } from "../../models/tools/graph/graph-content";
+import GraphToolComponent from "./graph-tool/graph-tool";
 
 export interface IToolApi {
   hasSelection: () => boolean;
@@ -78,7 +80,8 @@ const kToolComponentMap: any = {
         [kGeometryToolID]: GeometryToolComponent,
         [kImageToolID]: ImageToolComponent,
         [kTableToolID]: TableToolComponent,
-        [kTextToolID]: TextToolComponent
+        [kTextToolID]: TextToolComponent,
+        [kGraphToolID]: GraphToolComponent
       };
 
 @inject("stores")

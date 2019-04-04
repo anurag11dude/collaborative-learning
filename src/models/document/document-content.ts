@@ -16,6 +16,7 @@ import { DocumentsModelType } from "../stores/documents";
 import { getParentWithTypeName } from "../../utilities/mst-utils";
 import { IDropRowInfo } from "../../components/document/document-content";
 import { DocumentTool } from "./document";
+import { defaultGraphContent } from "../tools/graph/graph-content";
 
 export interface NewRowOptions {
   rowHeight?: number;
@@ -223,6 +224,10 @@ export const DocumentContentModel = types
       return self.addTileInNewRow(defaultDrawingContent({stamps: defaultStamps}),
                                   { rowHeight: kDrawingDefaultHeight });
     },
+    addGraphTile() {
+      const content = defaultGraphContent();
+      return self.addTileInNewRow(content);
+    },
     copyTileIntoRow(serializedTile: string, originalTileId: string, rowIndex: number, originalRowHeight?: number) {
       let snapshot;
       try {
@@ -247,7 +252,6 @@ export const DocumentContentModel = types
     },
     deleteTile(tileId: string) {
       Logger.logTileEvent(LogEventName.DELETE_TILE, self.tileMap.get(tileId));
-
       const rowsToDelete: TileRowModelType[] = [];
       self.rowMap.forEach(row => {
         // remove from row
@@ -372,6 +376,9 @@ export const DocumentContentModel = types
           break;
         case "drawing":
           tileInfo = self.addDrawingTile();
+          break;
+        case "graph":
+          tileInfo = self.addGraphTile();
           break;
       }
 

@@ -125,8 +125,10 @@
   "dependencies": {
     "@blueprintjs/core": "^3.14.1",
     "@concord-consortium/jsxgraph": "^0.99.8-cc.1",
+    "@types/chart.js": "^2.7.50",
     "ag-grid-community": "^20.1.0",
     "ag-grid-react": "^20.1.1",
+    "chart.js": "^2.8.0",
     "classnames": "^2.2.6",
     "expr-eval": "^1.2.2",
     "file-saver": "^2.0.1",
@@ -141,6 +143,7 @@
     "nanoid": "^2.0.1",
     "query-string": "^6.3.0",
     "react": "^16.8.4",
+    "react-chartjs-2": "^2.7.6",
     "react-dom": "^16.8.4",
     "react-dom-factories": "^1.0.2",
     "react-sizeme": "^2.5.2",
