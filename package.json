@@ -127,6 +127,7 @@
     "@concord-consortium/jsxgraph": "^0.99.8-cc.1",
     "ag-grid-community": "^20.1.0",
     "ag-grid-react": "^20.1.1",
+    "aws-sdk": "^2.437.0",
     "classnames": "^2.2.6",
     "expr-eval": "^1.2.2",
     "file-saver": "^2.0.1",

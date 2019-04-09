@@ -2,7 +2,8 @@ import { inject, observer } from "mobx-react";
 import * as React from "react";
 import { BaseComponent, IBaseProps } from "./base";
 import { GroupModelType, GroupUserModelType } from "../models/stores/groups";
-
+import { ControlPanelComponent } from "./dataflow/control-panel";
+import { urlParams } from "../utilities/url-params";
 import "./header.sass";
 
 interface IProps extends IBaseProps {
@@ -25,6 +26,7 @@ export class HeaderComponent extends BaseComponent<IProps, {}> {
             <div className="problem" data-test="problem-title">{problem.fullTitle}</div>
             <div className="class" data-test="user-class">{user.className}</div>
           </div>
+          {urlParams.dataflow ? <ControlPanelComponent /> : ""}
         </div>
         {myGroup ? this.renderGroup(myGroup) : null}
         <div className="user">
