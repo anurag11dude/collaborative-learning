@@ -1,8 +1,8 @@
 import * as AWS from "aws-sdk";
 
-// Credentials for limited account iot-test-user
-const ak = "AKIA34DD6ACUJMLF7HRA";
-const sk = "d8RN5ZqWwhUCwrfOhP5bQ29NhLnS4YOVJXCZ7/To";
+// Credentials for limited account iot-test-user2 available in 1Password
+const ak = "ACCESS_KEY";
+const sk = "SECRET_KEY";
 
 export function listThings(callback: any) {
   const iot = new AWS.Iot({
